@@ -51,11 +51,11 @@ public class Args {
     String elementTail = element.substring(1);
     validateSchemaElementId(elementId);
     if (isBooleanSchemaElement(elementTail)) {
-      parseBooleanSchemaElement(elementId);
+      marshaller.put(elementId, new BooleanArgumentMarshaller());
     } else if (isStringSchemaElement(elementTail)) {
-      parseStringSchemaElement(elementId);
+      marshaller.put(elementId, new StringArgumentMarshaller());
     } else if (isIntegerSchemaElement(elementTail)) {
-      parseIntegerSchemaElement(elementId);
+      marshaller.put(elementId, new IntegerArgumentMarshaller());
     } else {
       throw new ParseException(
           String.format("Argument: %c has invalid format: %s.", elementId, elementTail), 0);
@@ -67,21 +67,6 @@ public class Args {
       throw new ParseException(
           "Bad character:" + elementId + "in Args format: " + schema, 0);
     }
-  }
-
-  private void parseBooleanSchemaElement(char elementId) {
-    ArgumentMarshaller m = new BooleanArgumentMarshaller();
-    marshaller.put(elementId, m);
-  }
-
-  private void parseIntegerSchemaElement(char elementId) {
-    ArgumentMarshaller m = new IntegerArgumentMarshaller();
-    marshaller.put(elementId, m);
-  }
-
-  private void parseStringSchemaElement(char elementId) {
-    ArgumentMarshaller m = new StringArgumentMarshaller();
-    marshaller.put(elementId, m);
   }
 
   private boolean isStringSchemaElement(String elementTail) {
@@ -233,12 +218,20 @@ public class Args {
 
   public String getString(char arg) {
     Args.ArgumentMarshaller am = marshaller.get(arg);
-    return am == null ? "" : (String) am.get();
+    try {
+      return am == null ? "" : (String) am.get();
+    } catch (ClassCastException e) {
+      return "";
+    }
   }
 
   public int getInt(char arg) {
     Args.ArgumentMarshaller am = marshaller.get(arg);
-    return am == null ? 0 : (Integer) am.get();
+    try {
+      return am == null ? 0 : (Integer) am.get();
+    } catch (Exception e) {
+      return 0;
+    }
   }
 
   public boolean getBoolean(char arg) {
