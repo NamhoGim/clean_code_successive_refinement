@@ -10,7 +10,7 @@ public class Args {
   private final String schema;
   private final String[] args;
   private final Set<Character> unexpectedArguments = new TreeSet<>();
-  private final Map<Character, Boolean> booleanArgs = new HashMap<>();
+  private final Map<Character, ArgumentMarshaller> booleanArgs = new HashMap<>();
   private final Map<Character, String> stringArgs = new HashMap<>();
   private final Map<Character, Integer> intArgs = new HashMap<>();
   private final Set<Character> argsFound = new HashSet<>();
@@ -72,7 +72,7 @@ public class Args {
   }
 
   private void parseBooleanSchemaElement(char elementId) {
-    booleanArgs.put(elementId, false);
+    booleanArgs.put(elementId, new BooleanArgumentMarshaller());
   }
 
   private void parseIntegerSchemaElement(char elementId) {
@@ -180,7 +180,7 @@ public class Args {
   }
 
   private void setBooleanArg(char argChar, boolean value) {
-    booleanArgs.put(argChar, value);
+    booleanArgs.get(argChar).setBoolean(value);
   }
 
   private boolean isBooleanArg(char argChar) {
@@ -248,7 +248,8 @@ public class Args {
   }
 
   public boolean getBoolean(char arg) {
-    return falseIfNull(booleanArgs.get(arg));
+    Args.ArgumentMarshaller am = booleanArgs.get(arg);
+    return am != null && am.getBoolean();
   }
 
   public boolean has(char arg) {
