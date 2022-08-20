@@ -10,9 +10,6 @@ public class Args {
   private final String schema;
   private final String[] args;
   private final Set<Character> unexpectedArguments = new TreeSet<>();
-  private final Map<Character, ArgumentMarshaller> booleanArgs = new HashMap<>();
-  private final Map<Character, ArgumentMarshaller> stringArgs = new HashMap<>();
-  private final Map<Character, ArgumentMarshaller> intArgs = new HashMap<>();
   private final Map<Character, ArgumentMarshaller> marshaller = new HashMap<>();
   private final Set<Character> argsFound = new HashSet<>();
   private boolean valid = true;
@@ -74,19 +71,16 @@ public class Args {
 
   private void parseBooleanSchemaElement(char elementId) {
     ArgumentMarshaller m = new BooleanArgumentMarshaller();
-    booleanArgs.put(elementId, m);
     marshaller.put(elementId, m);
   }
 
   private void parseIntegerSchemaElement(char elementId) {
     ArgumentMarshaller m = new IntegerArgumentMarshaller();
-    intArgs.put(elementId, m);
     marshaller.put(elementId, m);
   }
 
   private void parseStringSchemaElement(char elementId) {
     ArgumentMarshaller m = new StringArgumentMarshaller();
-    stringArgs.put(elementId, m);
     marshaller.put(elementId, m);
   }
 
@@ -238,18 +232,24 @@ public class Args {
   }
 
   public String getString(char arg) {
-    Args.ArgumentMarshaller am = stringArgs.get(arg);
+    Args.ArgumentMarshaller am = marshaller.get(arg);
     return am == null ? "" : (String) am.get();
   }
 
   public int getInt(char arg) {
-    Args.ArgumentMarshaller am = intArgs.get(arg);
+    Args.ArgumentMarshaller am = marshaller.get(arg);
     return am == null ? 0 : (Integer) am.get();
   }
 
   public boolean getBoolean(char arg) {
-    Args.ArgumentMarshaller am = booleanArgs.get(arg);
-    return am != null && (Boolean) am.get();
+    Args.ArgumentMarshaller am = marshaller.get(arg);
+    boolean b = false;
+    try {
+      b = am != null && (Boolean) am.get();
+    } catch (ClassCastException e) {
+      b = false;
+    }
+    return b;
   }
 
   public boolean has(char arg) {
