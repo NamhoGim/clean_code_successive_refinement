@@ -13,6 +13,7 @@ public class Args {
   private final Map<Character, ArgumentMarshaller> booleanArgs = new HashMap<>();
   private final Map<Character, ArgumentMarshaller> stringArgs = new HashMap<>();
   private final Map<Character, ArgumentMarshaller> intArgs = new HashMap<>();
+  private final Map<Character, ArgumentMarshaller> marshaller = new HashMap<>();
   private final Set<Character> argsFound = new HashSet<>();
   private boolean valid = true;
   private int currentArgument;
@@ -72,15 +73,21 @@ public class Args {
   }
 
   private void parseBooleanSchemaElement(char elementId) {
-    booleanArgs.put(elementId, new BooleanArgumentMarshaller());
+    ArgumentMarshaller m = new BooleanArgumentMarshaller();
+    booleanArgs.put(elementId, m);
+    marshaller.put(elementId, m);
   }
 
   private void parseIntegerSchemaElement(char elementId) {
-    intArgs.put(elementId, new IntegerArgumentMarshaller());
+    ArgumentMarshaller m = new IntegerArgumentMarshaller();
+    intArgs.put(elementId, m);
+    marshaller.put(elementId, m);
   }
 
   private void parseStringSchemaElement(char elementId) {
-    stringArgs.put(elementId, new StringArgumentMarshaller());
+    ArgumentMarshaller m = new StringArgumentMarshaller();
+    stringArgs.put(elementId, m);
+    marshaller.put(elementId, m);
   }
 
   private boolean isStringSchemaElement(String elementTail) {
