@@ -154,12 +154,12 @@ public class Args {
       errorArgumentId = argChar;
       errorCode = ErrorCode.MISSING_INTEGER;
       throw new ArgsException();
-    } catch (NumberFormatException e) {
+    } catch (ArgsException e) {
       valid = false;
       errorArgumentId = argChar;
       errorParameter = parameter;
       errorCode = ErrorCode.INVALID_INTEGER;
-      throw new ArgsException();
+      throw e;
     }
   }
 
@@ -180,7 +180,10 @@ public class Args {
   }
 
   private void setBooleanArg(char argChar, boolean value) {
-    booleanArgs.get(argChar).set("true");
+    try {
+      booleanArgs.get(argChar).set("true");
+    } catch (ArgsException e) {
+    }
   }
 
   private boolean isBooleanArg(char argChar) {
@@ -272,7 +275,7 @@ public class Args {
 
   private abstract class ArgumentMarshaller {
 
-    public abstract void set(String s);
+    public abstract void set(String s) throws ArgsException;
 
     public abstract Object get();
   }
@@ -309,11 +312,15 @@ public class Args {
 
   private class IntegerArgumentMarshaller extends ArgumentMarshaller {
 
-    private int integerValue;
+    private int integerValue = 0;
 
     @Override
-    public void set(String s) {
-      integerValue = Integer.parseInt(s);
+    public void set(String s) throws ArgsException {
+      try {
+        integerValue = Integer.parseInt(s);
+      } catch (NumberFormatException e) {
+        throw new ArgsException();
+      }
     }
 
     @Override
