@@ -266,4 +266,29 @@ public class Args {
   private class ArgsException extends Exception {
 
   }
+
+  private class ArgumentMarshaller {
+
+    private boolean booleanValue = false;
+
+    public void setBoolean(boolean value) {
+      booleanValue = value;
+    }
+
+    public boolean getBoolean() {
+      return booleanValue;
+    }
+  }
+
+  private class BooleanArgumentMarshaller extends ArgumentMarshaller {
+
+  }
+
+  private class StringArgumentMarshaller extends ArgumentMarshaller {
+
+  }
+
+  private class IntegerArgumentMarshaller extends ArgumentMarshaller {
+
+  }
 }
