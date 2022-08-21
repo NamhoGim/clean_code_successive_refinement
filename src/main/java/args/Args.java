@@ -1,4 +1,6 @@
-import java.text.ParseException;
+package args;
+
+import args.ArgsException.ErrorCode;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,13 +24,13 @@ public class Args {
   private ErrorCode errorCode = ErrorCode.OK;
   private final List<String> argsList;
 
-  public Args(String schema, String[] args) throws ParseException {
+  public Args(String schema, String[] args) throws ArgsException {
     this.schema = schema;
     this.argsList = Arrays.asList(args);
     valid = parse();
   }
 
-  private boolean parse() throws ParseException {
+  private boolean parse() throws ArgsException {
     if (schema.length() == 0 && argsList.size() == 0) {
       return true;
     }
@@ -40,7 +42,7 @@ public class Args {
     return valid;
   }
 
-  private boolean pareSchema() throws ParseException {
+  private boolean pareSchema() throws ArgsException {
     for (String element : schema.split(",")) {
       if (element.length() > 0) {
         String trimmedElement = element.trim();
@@ -50,7 +52,7 @@ public class Args {
     return true;
   }
 
-  private void parseSchemaElement(String element) throws ParseException {
+  private void parseSchemaElement(String element) throws ArgsException {
     char elementId = element.charAt(0);
     String elementTail = element.substring(1);
     validateSchemaElementId(elementId);
@@ -63,15 +65,15 @@ public class Args {
     } else if (elementTail.equals("##")) {
       marshaller.put(elementId, new DoubleArgumentMarshaller());
     } else {
-      throw new ParseException(
-          String.format("Argument: %c has invalid format: %s.", elementId, elementTail), 0);
+      throw new ArgsException(
+          String.format("Argument: %c has invalid format: %s.", elementId, elementTail));
     }
   }
 
-  private void validateSchemaElementId(char elementId) throws ParseException {
+  private void validateSchemaElementId(char elementId) throws ArgsException {
     if (!Character.isLetter(elementId)) {
-      throw new ParseException(
-          "Bad character:" + elementId + "in Args format: " + schema, 0);
+      throw new ArgsException(
+          "Bad character:" + elementId + "in args.Args format: " + schema);
     }
   }
 
@@ -221,14 +223,6 @@ public class Args {
 
   public boolean isValid() {
     return valid;
-  }
-
-  private enum ErrorCode {
-    OK, MISSING_STRING, MISSING_INTEGER, INVALID_INTEGER, MISSING_DOUBLE, INVALID_DOUBLE, UNEXPECTED_ARGUMENT
-  }
-
-  private class ArgsException extends Exception {
-
   }
 
   private interface ArgumentMarshaller {
